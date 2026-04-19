@@ -115,13 +115,13 @@ def main() -> int:
             _show_progress(renderer, f"Audio gen failed: {e}")
             time.sleep(2.5)
 
-    # Start looping battle music + ambience if they're cached.
+    # Start looping battle music. Ambience playback is disabled by default —
+    # Lyria renders the ambience as its own musical track too, so stacking
+    # both gives a muddy double-music effect. The ambience WAV stays on disk
+    # for future use if we ever swap to a true SFX model.
     audio = AudioPlayer()
-    if not args.no_audio:
-        if MUSIC_PATH.exists():
-            audio.play_music_loop(MUSIC_PATH)
-        if AMBIENCE_PATH.exists():
-            audio.play_ambience_loop(AMBIENCE_PATH)
+    if not args.no_audio and MUSIC_PATH.exists():
+        audio.play_music_loop(MUSIC_PATH)
 
     cap = open_camera(args.camera)
     detector = PoseDetector()
