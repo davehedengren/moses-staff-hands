@@ -1,0 +1,11 @@
+I want to make a game based on Exodus chapter 17 verses eight through 13. The basic idea is I want to have somebody hold their hands up and whenever their hands are up a simple animated battle of the Israelites and the people amalek will play out.
+
+If the object recognition of the camera recognizes hands above a certain line, then the Israelites army will continue to advance forward if they below fall below a line then the other army will prevail. The entire plan should take about 3 minutes.
+
+I think it might work better if I have a staff that they have to carry above their heads. Do you think having a shovel or something similar to Carrie would be enough weight at three minutes would be challenging? What do you think is the right time duration period perhaps we can make that a user configure or parameter.
+
+You will have a .env file with access keys for Gemini to use nano banana three to generate art for the game. It should be fairly simple. Start by making a detailed plan and then execute on that plan.
+
+I'm guessing we will use something like open CV to detect the object. We want to make sure that it's possible for other players to hold up the arms of the player to demonstrate the importance of lifting and sustaining one another and difficult times and in difficult callings.
+
+Any questions?
