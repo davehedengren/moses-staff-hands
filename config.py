@@ -4,7 +4,6 @@ from pathlib import Path
 # --- timing ---------------------------------------------------------------
 DURATION_PRESETS = {"easy": 90, "default": 180, "hard": 300}
 DEFAULT_DURATION = "default"
-WARMUP_SECONDS = 3
 
 # --- battle dynamics ------------------------------------------------------
 # Fraction of battlefield pushed per second. Tuned so that with the default

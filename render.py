@@ -436,8 +436,6 @@ class Renderer:
         mins = secs // 60
         rem = secs % 60
         label = f"{mins}:{rem:02d}"
-        if state.status is Status.WARMUP:
-            label = f"Get ready... {secs}"
         timer_surf = self.font_med.render(label, True, config.COLOR_TEXT)
         tr = timer_surf.get_rect()
         tr.midtop = (self.w // 2, label_row_y + il.get_height() + 2)
