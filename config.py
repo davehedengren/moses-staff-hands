@@ -26,7 +26,9 @@ WINDOW_W = 1600
 WINDOW_H = 900
 BATTLEFIELD_H_FRAC = 0.55  # top portion; remainder is webcam + HUD
 FPS = 30
-SOLDIERS_PER_SIDE = 6
+# Sized so every sprite (base + 10 variants = 11) shows up at least once per
+# army; any extra beyond 11 recycles the pool.
+SOLDIERS_PER_SIDE = 11
 SOLDIER_STEP_PX = 70  # horizontal spacing between soldiers in a column
 SOLDIER_VARIANT_COUNT = 10  # how many variants per side to generate via edit
 

@@ -61,13 +61,23 @@ class _Soldier:
     y_offset: float          # baseline vertical offset for variety
 
 
-def _make_soldiers(n: int, rng: random.Random) -> List[_Soldier]:
+def _make_soldiers(n: int, rng: random.Random, num_sprites: int) -> List[_Soldier]:
+    """Assign variant indices as a shuffled permutation so every sprite shows
+    up at least once when n >= num_sprites. Falls back to index 0 if there's
+    no sprite pool yet (renderer will use colored rectangles)."""
+    if num_sprites <= 0:
+        variant_order = [0] * n
+    else:
+        pool = list(range(num_sprites))
+        rng.shuffle(pool)
+        variant_order = [pool[i % num_sprites] for i in range(n)]
+
     out = []
     for i in range(n):
         out.append(
             _Soldier(
                 step=i,
-                variant_idx=rng.randrange(10_000),  # modded by sprite count at draw
+                variant_idx=variant_order[i],
                 bob_phase=rng.uniform(0, math.tau),
                 bob_freq=rng.uniform(1.6, 2.8),
                 bob_amp=rng.uniform(4.0, 10.0),
@@ -100,12 +110,17 @@ class Renderer:
         self.font_med = pygame.font.SysFont("georgia", 34, bold=True)
         self.font_big = pygame.font.SysFont("georgia", 72, bold=True)
 
-        # Seeded RNG so soldier jitter is stable between runs.
-        rng = random.Random(42)
-        self._israel_soldiers = _make_soldiers(config.SOLDIERS_PER_SIDE, rng)
-        self._amalek_soldiers = _make_soldiers(config.SOLDIERS_PER_SIDE, rng)
-
+        # Load sprites first so we know how many variants are available,
+        # then assign a unique variant to each soldier slot.
         self.load_sprites()
+
+        rng = random.Random(42)
+        self._israel_soldiers = _make_soldiers(
+            config.SOLDIERS_PER_SIDE, rng, len(self._israel_sprites)
+        )
+        self._amalek_soldiers = _make_soldiers(
+            config.SOLDIERS_PER_SIDE, rng, len(self._amalek_sprites)
+        )
 
     def load_sprites(self) -> None:
         self._bg_raw = _load_image_or_none(config.ASSETS_DIR / "background.png")
