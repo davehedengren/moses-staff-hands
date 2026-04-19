@@ -8,6 +8,7 @@ import config
 
 
 class Status(str, Enum):
+    WARMUP = "warmup"
     PLAYING = "playing"
     ISRAEL_WON = "israel_won"
     AMALEK_WON = "amalek_won"
@@ -25,15 +26,22 @@ class BattleState:
     duration_s: float
     line_pos: float = 0.5
     elapsed: float = 0.0
-    status: Status = Status.PLAYING
+    status: Status = Status.WARMUP
 
     push_rate: float = field(default_factory=lambda: config.PUSH_RATE)
+    warmup_s: float = field(default_factory=lambda: float(config.WARMUP_SECONDS))
 
     def tick(self, dt: float, arms_up: bool) -> None:
         if self.status in (Status.ISRAEL_WON, Status.AMALEK_WON):
             return
 
         self.elapsed += dt
+
+        if self.status is Status.WARMUP:
+            if self.elapsed >= self.warmup_s:
+                self.status = Status.PLAYING
+                self.elapsed = 0.0
+            return
 
         # PLAYING — arms up advances Israel slowly; arms down pulls Amalek
         # back faster (asymmetric, matches the "when Moses lowered his hand,
@@ -62,6 +70,8 @@ class BattleState:
 
     @property
     def time_remaining(self) -> float:
+        if self.status is Status.WARMUP:
+            return max(0.0, self.warmup_s - self.elapsed)
         if self.status is Status.PLAYING:
             return max(0.0, self.duration_s - self.elapsed)
         return 0.0
@@ -73,4 +83,4 @@ class BattleState:
     def reset(self) -> None:
         self.line_pos = 0.5
         self.elapsed = 0.0
-        self.status = Status.PLAYING
+        self.status = Status.WARMUP

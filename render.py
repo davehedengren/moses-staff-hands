@@ -431,15 +431,15 @@ class Renderer:
         al_rect.topright = (bar.right, label_row_y)
         self.screen.blit(al, al_rect)
 
-        # Timer, centered below the progress-bar row.
-        secs = int(round(state.time_remaining))
-        mins = secs // 60
-        rem = secs % 60
-        label = f"{mins}:{rem:02d}"
-        timer_surf = self.font_med.render(label, True, config.COLOR_TEXT)
-        tr = timer_surf.get_rect()
-        tr.midtop = (self.w // 2, label_row_y + il.get_height() + 2)
-        self.screen.blit(timer_surf, tr)
+        # Only show a label during warmup — the in-battle countdown was
+        # distracting. During PLAYING the progress bar carries the tension.
+        if state.status is Status.WARMUP:
+            secs = int(round(state.time_remaining))
+            label = f"Get ready... {secs}"
+            timer_surf = self.font_med.render(label, True, config.COLOR_TEXT)
+            tr = timer_surf.get_rect()
+            tr.midtop = (self.w // 2, label_row_y + il.get_height() + 2)
+            self.screen.blit(timer_surf, tr)
         # Big arms-state readout lives in the webcam sidebar only — no
         # duplicate top-right indicator here (it collided with AMALEK label).
 

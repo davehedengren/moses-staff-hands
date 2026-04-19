@@ -20,6 +20,16 @@ Put your Gemini API key in `.env`:
 GEMINI_API_KEY=...
 ```
 
+Optional tunables (also in `.env`, all seconds):
+
+```
+DURATION_EASY=90
+DURATION_DEFAULT=180
+DURATION_HARD=300
+DEFAULT_DURATION=default
+WARMUP_SECONDS=3
+```
+
 ## Run
 
 ```bash

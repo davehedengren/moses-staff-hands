@@ -2,13 +2,24 @@
 from battle import BattleState, Status
 
 
-def test_starts_playing_immediately():
+def _skip_warmup(state: BattleState) -> None:
+    state.tick(state.warmup_s + 0.01, arms_up=False)
+    assert state.status is Status.PLAYING
+
+
+def test_starts_in_warmup_then_enters_playing():
     state = BattleState(duration_s=60)
+    assert state.status is Status.WARMUP
+    state.tick(1.0, arms_up=True)
+    # Default warmup is 3s, so one 1s tick is still warmup.
+    assert state.status is Status.WARMUP
+    state.tick(2.5, arms_up=True)
     assert state.status is Status.PLAYING
 
 
 def test_arms_up_pushes_toward_israel():
     state = BattleState(duration_s=60)
+    _skip_warmup(state)
     start = state.line_pos
     state.tick(1.0, arms_up=True)
     assert state.line_pos > start
@@ -16,6 +27,7 @@ def test_arms_up_pushes_toward_israel():
 
 def test_arms_down_pushes_toward_amalek():
     state = BattleState(duration_s=60)
+    _skip_warmup(state)
     start = state.line_pos
     state.tick(1.0, arms_up=False)
     assert state.line_pos < start
@@ -23,7 +35,7 @@ def test_arms_down_pushes_toward_amalek():
 
 def test_israel_wins_when_line_reaches_1():
     state = BattleState(duration_s=300)
-    # Push hard: a huge tick is far past 1.0; clamped.
+    _skip_warmup(state)
     state.tick(2000.0, arms_up=True)
     assert state.line_pos == 1.0
     assert state.status is Status.ISRAEL_WON
@@ -31,6 +43,7 @@ def test_israel_wins_when_line_reaches_1():
 
 def test_amalek_wins_when_line_reaches_0():
     state = BattleState(duration_s=300)
+    _skip_warmup(state)
     state.tick(2000.0, arms_up=False)
     assert state.line_pos == 0.0
     assert state.status is Status.AMALEK_WON
@@ -38,7 +51,7 @@ def test_amalek_wins_when_line_reaches_0():
 
 def test_timeout_with_israel_ahead_awards_israel():
     state = BattleState(duration_s=5)
-    # Small push toward Israel so line > 0.5, then time out while still ahead.
+    _skip_warmup(state)
     state.tick(1.0, arms_up=True)
     assert 0.5 < state.line_pos < 1.0
     state.tick(3.999, arms_up=True)
@@ -48,6 +61,7 @@ def test_timeout_with_israel_ahead_awards_israel():
 
 def test_timeout_with_amalek_ahead_awards_amalek():
     state = BattleState(duration_s=5)
+    _skip_warmup(state)
     state.tick(4.0, arms_up=False)
     state.tick(1.1, arms_up=True)
     assert state.status is Status.AMALEK_WON
@@ -56,21 +70,25 @@ def test_timeout_with_amalek_ahead_awards_amalek():
 def test_is_over_only_after_win_or_loss():
     state = BattleState(duration_s=60)
     assert not state.is_over
+    _skip_warmup(state)
+    assert not state.is_over
     state.tick(2000.0, arms_up=True)
     assert state.is_over
 
 
 def test_reset_restores_initial_state():
     state = BattleState(duration_s=60)
+    _skip_warmup(state)
     state.tick(1.0, arms_up=True)
     state.reset()
     assert state.line_pos == 0.5
     assert state.elapsed == 0.0
-    assert state.status is Status.PLAYING
+    assert state.status is Status.WARMUP
 
 
 def test_tick_is_idempotent_after_game_over():
     state = BattleState(duration_s=60)
+    _skip_warmup(state)
     state.tick(2000.0, arms_up=True)
     assert state.status is Status.ISRAEL_WON
     frozen_pos = state.line_pos

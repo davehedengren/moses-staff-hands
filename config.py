@@ -1,9 +1,35 @@
 """Central configuration for Moses' Staff game."""
+import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env up front so env-var-driven settings below can reference it.
+load_dotenv()
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
 # --- timing ---------------------------------------------------------------
-DURATION_PRESETS = {"easy": 90, "default": 180, "hard": 300}
-DEFAULT_DURATION = "default"
+# Override any of these by setting DURATION_EASY / DURATION_DEFAULT /
+# DURATION_HARD in .env (seconds). Defaults match a 1.5/3/5-minute ladder.
+DURATION_PRESETS = {
+    "easy": _env_int("DURATION_EASY", 90),
+    "default": _env_int("DURATION_DEFAULT", 180),
+    "hard": _env_int("DURATION_HARD", 300),
+}
+DEFAULT_DURATION = os.environ.get("DEFAULT_DURATION", "default")
+# Seconds of "Get ready..." shown before the round starts. Set WARMUP_SECONDS
+# in .env to tune.
+WARMUP_SECONDS = _env_int("WARMUP_SECONDS", 3)
 
 # --- battle dynamics ------------------------------------------------------
 # Fraction of battlefield pushed per second. Tuned so that with the default
